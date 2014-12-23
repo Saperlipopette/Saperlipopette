@@ -9,36 +9,39 @@ public class BasicTestOlivierTake2 {
         final Linda linda = new linda.shm.CentralizedLinda();
         // final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
                 
-        new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(2);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        for (int i = 1; i <= 3; i++) {
+            final int j = i;
+            new Thread() {  
+                public void run() {
+                    try {
+                        Thread.sleep(2);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Tuple motif = new Tuple(Integer.class, String.class);
+                    Tuple res = linda.take(motif);
+                    System.out.println("("+j+") Resultat:" + res);
+                    linda.debug("("+j+")");
                 }
-                Tuple motif = new Tuple(Integer.class, String.class);
-                Tuple motif2 = new Tuple(Integer.class, Integer.class);
-                
-                
-
-                //On vérifie que les dépôts débloquent les take dans les ordres dans lesquels ils ont été mis
-                Tuple resIntStr = linda.take(motif);
-                Tuple resIntStr2 = linda.take(motif);
-                
-                Tuple resIntInt = linda.take(motif2);
-                Tuple resIntInt2 = linda.take(motif2);
-                Tuple resIntInt3 = linda.take(motif2);
-
-                System.out.println("(1) Resultat:" + resIntStr);
-                System.out.println("(2) Resultat:" + resIntStr2);
-                
-                System.out.println("(3) Resultat:" + resIntInt);
-                System.out.println("(4) Resultat:" + resIntInt2);
-                System.out.println("(5) Resultat:" + resIntInt3);
-                
-                linda.debug("(1)");
-            }
-        }.start();
+            }.start();
+        }
+//        
+//        for (int i = 1; i <= 3; i++) {
+//            final int j = i;
+//            new Thread() {  
+//                public void run() {
+//                    try {
+//                        Thread.sleep(2);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Tuple motif2 = new Tuple(Integer.class, Integer.class);
+//                    Tuple res = linda.take(motif2);
+//                    System.out.println("("+j+") Resultat:" + res);
+//                    linda.debug("("+j+")");
+//                }
+//            }.start();
+//        }
                 
         new Thread() {
             public void run() {
