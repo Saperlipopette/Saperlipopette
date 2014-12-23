@@ -13,7 +13,7 @@ public class MyObserver implements Observer {
 	private Tuple template;
 	private Callback callback;
 	private eventMode mode;
-	
+
 	public MyObserver(eventMode mode, Tuple template, Callback callback) {
 		super();
 		this.mode = mode;
@@ -30,17 +30,21 @@ public class MyObserver implements Observer {
 			// si le nouveau tuple correspond au template
 			if (tuple.matches(template)) {
 				// System.out.println("tuple matches");
-				if (mode==eventMode.READ) {
-					tuple=((Linda) o).tryRead(template);
-				} else {
-					tuple=((Linda) o).tryTake(template);
-				} 
-				//on regarde si on a trouvé le tuple correspondant dans la liste (car d'autres observateurs en mode take ou des takeMatchEnAttente pourront 
-				//avoir été prioritaires et l'avoir enlevé de la liste)
-				// on effectue l'action puis on supprime l'observer
-				if (tuple != null) {
+				// on regarde si le tuple correspondant existe toujours dans la
+				// liste (car d'autres observateurs en mode take ou des
+				// takeMatchEnAttente pourront
+				// avoir été prioritaires et l'avoir enlevé de la liste)
+
+				// si le tuple est dans la liste
+				if (((CentralizedLinda) o).getDernierElement() == true) {
+					// on effectue l'action puis on supprime l'observer
 					callback.call(tuple);
 					o.deleteObserver(this);
+					//dans le cas d'un take, on supprime le tuple et on indique qu'il a été pris pour les prochains observers
+					if (mode == eventMode.TAKE) {
+						((CentralizedLinda) o).setDernierElement(false);
+						((CentralizedLinda) o).getTuples().remove(tuple);
+					}
 				}
 			}
 		}
