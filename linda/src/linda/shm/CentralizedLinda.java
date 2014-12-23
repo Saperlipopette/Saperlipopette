@@ -23,16 +23,13 @@ public class CentralizedLinda extends Observable implements Linda {
 	
 	
 
-	private Collection<Tuple> tuples;
-	private Map<Tuple, LinkedList<Integer>> MatchEnAttente;
-	private Lock moniteur;
-	private Condition[] classe;
-	private int id;
-
+	Collection<Tuple> tuples;
+	Map<Tuple, LinkedList<Integer>> MatchEnAttente;
+	Lock moniteur;
+	Condition[] classe;
+	int id;
 	private Boolean dernierElement; // utilisÃ© pour la mÃ©thode "update" de nos observers
 	
-	
-
 	public CentralizedLinda() {
 		super();
 		tuples = new LinkedList<Tuple>();
@@ -41,72 +38,68 @@ public class CentralizedLinda extends Observable implements Linda {
     	classe = new Condition[200];
     	id = 0;
 	}
-	
-//DEBUT GETTERS & SETTERS
-	public Boolean getDernierElement() {
-		return dernierElement;
-	}
 
-	public void setDernierElement(Boolean dernierElement) {
-		this.dernierElement = dernierElement;
-	}
-	
-	public Collection<Tuple> getTuples() {
-		return tuples;
-	}
+	//DEBUT GETTERS & SETTERS
+		public Boolean getDernierElement() {
+			return dernierElement;
+		}
 
-	public void setTuples(Collection<Tuple> tuples) {
-		this.tuples = tuples;
-	}
-	
-	public Map<Tuple, LinkedList<Integer>> getMatchEnAttente() {
-		return MatchEnAttente;
-	}
+		public void setDernierElement(Boolean dernierElement) {
+			this.dernierElement = dernierElement;
+		}
+		
+		public Collection<Tuple> getTuples() {
+			return tuples;
+		}
 
-	public void setMatchEnAttente(Map<Tuple, LinkedList<Integer>> matchEnAttente) {
-		MatchEnAttente = matchEnAttente;
-	}
+		public void setTuples(Collection<Tuple> tuples) {
+			this.tuples = tuples;
+		}
+		
+		public Map<Tuple, LinkedList<Integer>> getMatchEnAttente() {
+			return MatchEnAttente;
+		}
 
-	public Lock getMoniteur() {
-		return moniteur;
-	}
+		public void setMatchEnAttente(Map<Tuple, LinkedList<Integer>> matchEnAttente) {
+			MatchEnAttente = matchEnAttente;
+		}
 
-	public void setMoniteur(Lock moniteur) {
-		this.moniteur = moniteur;
-	}
+		public Lock getMoniteur() {
+			return moniteur;
+		}
 
-	public Condition[] getClasse() {
-		return classe;
-	}
+		public void setMoniteur(Lock moniteur) {
+			this.moniteur = moniteur;
+		}
 
-	public void setClasse(Condition[] classe) {
-		this.classe = classe;
-	}
+		public Condition[] getClasse() {
+			return classe;
+		}
 
-	public int getId() {
-		return id;
-	}
+		public void setClasse(Condition[] classe) {
+			this.classe = classe;
+		}
 
-	public void setId(int id) {
-		this.id = id;
-	}
-// FIN GETTERS & SETTERS
+		public int getId() {
+			return id;
+		}
 
-
-	@Override
+		public void setId(int id) {
+			this.id = id;
+		}
+	// FIN GETTERS & SETTERS
+		
 	public void write(Tuple t) {
 		// TODO Auto-generated method stub
 		moniteur.lock();
 		this.setDernierElement(true);; //tant que la variable est "true", cela indique que le dernier Ã©lÃ©ment Ã©crit n'a pas encore Ã©tÃ© pris (take)
 		tuples.add(t);
-		this.reveil(recupererTemplate(t)); // S'il n'y a personne Ã  reveiller il ne se passe rien
+		this.reveil(recupererTemplate(t)); // S'il n'y a personne à reveiller il ne se passe rien
 		this.setChanged();
 		this.notifyObservers(t);
 		moniteur.unlock();
 	}
 
-
-	@Override
 	public Tuple take(Tuple template) {
 		// TODO Auto-generated method stub
 		moniteur.lock();
@@ -129,7 +122,7 @@ public class CentralizedLinda extends Observable implements Linda {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
-			//System.out.println("Take NÂ°"+nb+" reveillÃ©");
+			//System.out.println("Take N°"+nb+" reveillé");
 			//on indique pour les eventRegister que le template a Ã©tÃ© pris (take)
 			this.setDernierElement(false);
 			t = this.tryTake(template);
@@ -142,7 +135,6 @@ public class CentralizedLinda extends Observable implements Linda {
 		return t;
 	}
 
-	@Override
 	public Tuple read(Tuple template) {
 		// TODO Auto-generated method stub		
 		moniteur.lock();
@@ -165,7 +157,7 @@ public class CentralizedLinda extends Observable implements Linda {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}		
-			//System.out.println("Read NÂ°"+nb+" reveillÃ©");
+			//System.out.println("Read N°"+nb+" reveillé");
 			t = this.tryRead(template);
 			//System.out.println("Avant :"+MatchEnAttente.get(template));
 			MatchEnAttente.get(template).removeFirst();
@@ -181,7 +173,6 @@ public class CentralizedLinda extends Observable implements Linda {
 		return t;
 	}
 
-	@Override
 	public Tuple tryTake(Tuple template) {
 		// TODO Auto-generated method stub
 		Tuple resultat = null;		
@@ -196,7 +187,6 @@ public class CentralizedLinda extends Observable implements Linda {
 		return resultat;
 	}
 
-	@Override
 	public Tuple tryRead(Tuple template) {
 		// TODO Auto-generated method stub		
 		Tuple resultat = null;		
@@ -210,7 +200,6 @@ public class CentralizedLinda extends Observable implements Linda {
 		return resultat;
 	}
 
-	@Override
 	public Collection<Tuple> takeAll(Tuple template) {
 		// TODO Auto-generated method stub
 		Collection<Tuple> ts = new ArrayList<Tuple>();
@@ -223,7 +212,6 @@ public class CentralizedLinda extends Observable implements Linda {
 		return ts;
 	}
 
-	@Override
 	public Collection<Tuple> readAll(Tuple template) {
 		// TODO Auto-generated method stub
 		Collection<Tuple> ts = new ArrayList<Tuple>();
@@ -235,21 +223,20 @@ public class CentralizedLinda extends Observable implements Linda {
 		return ts;
 	}
 
-	@Override
 	public void eventRegister(eventMode mode, eventTiming timing,
 			Tuple template, Callback callback) {
 		// TODO Auto-generated method stub
 		Tuple tuple =null;
 		Observer obs;
 		
-	    // dans le cas oÃ¹ l'action Ã  effectuer est IMMEDIATE
+	    // dans le cas où l'action à effectuer est IMMEDIATE
 		if (timing==eventTiming.IMMEDIATE) {
 			if (mode==eventMode.READ) {
 				tuple=this.tryRead(template);
 			} else {
 				tuple=this.tryTake(template);
 			} 
-			//si on a trouvÃ© un tuple immediatement, on effectue l'action
+			//si on a trouvé un tuple immediatement, on effectue l'action
 			if (tuple != null) {
 				callback.call(tuple);
 		    //sinon on attend avec un observer
@@ -258,14 +245,13 @@ public class CentralizedLinda extends Observable implements Linda {
 				this.addObserver(obs);
 				// System.out.println("obs added");
 			}
-		// dans le cas oÃ¹ l'action Ã  effectuer est FUTURE, on ajoute simplement l'observer
+		// dans le cas où l'action à effectuer est FUTURE, on ajoute simplement l'observer
 		} else {
 			obs = new MyObserver(mode, template, callback);
 			this.addObserver(obs);
 		}
 	}
 
-	@Override
 	public void debug(String prefix) {
 		// TODO Auto-generated method stub
 		
@@ -300,6 +286,14 @@ public class CentralizedLinda extends Observable implements Linda {
 	    	classe[ensemble.first()].signal();
     	}
 	}
+    
+    public void afficherTuples() {
+    	moniteur.lock();
+    	for (Tuple t : tuples) {
+    		System.out.println(t.toString());
+    	}
+    	moniteur.unlock();
+    }
     
     
 	/*
