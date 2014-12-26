@@ -12,14 +12,14 @@ public class BasicTest3 {
             final int j = i;
             new Thread() {  
                 public void run() {
-                    try {
-                        Thread.sleep(2);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                	 try {
+                         Thread.sleep(2);
+                     } catch (InterruptedException e) {
+                         e.printStackTrace();
+                     }
                     Tuple motif = new Tuple(Integer.class, String.class);
                     Tuple res;
-                    ((linda.shm.CentralizedLinda)linda).afficherTuples();
+                    //((linda.shm.CentralizedLinda)linda).afficherTuples();
                     if (j==1) {
                     	res = linda.read(motif);
                     } else if (j==3) {
@@ -29,7 +29,7 @@ public class BasicTest3 {
                     }
                     System.out.println("("+j+") Resultat:" + res);
                     linda.debug("("+j+")");
-                    ((linda.shm.CentralizedLinda)linda).afficherTuples();
+                   //((linda.shm.CentralizedLinda)linda).afficherTuples();
                 }
             }.start();
         }
@@ -37,7 +37,7 @@ public class BasicTest3 {
         new Thread() {
             public void run() {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -50,16 +50,16 @@ public class BasicTest3 {
                 System.out.println("(0) write: " + t2);
                 linda.write(t2);
 
-                linda.debug("(0)");
+            //    linda.debug("(0)");
 
                 Tuple t3 = new Tuple(4, "foo");
                 System.out.println("(0) write: " + t3);
                 linda.write(t3);
                 linda.write(t3);
                                 
-                linda.debug("(0)");
+                //linda.debug("(0)");
 
-                ((linda.shm.CentralizedLinda)linda).afficherTuples();
+                //((linda.shm.CentralizedLinda)linda).afficherTuples();
             }
         }.start();
                 

@@ -36,13 +36,13 @@ public class MyObserver implements Observer {
 				// avoir été prioritaires et l'avoir enlevé de la liste)
 
 				// si le tuple est dans la liste
-				if (((CentralizedLinda) o).getDernierElement() == true) {
+				if (!((CentralizedLinda) o).getTakeEffectue()) {
 					// on effectue l'action puis on supprime l'observer
 					callback.call(tuple);
 					o.deleteObserver(this);
 					//dans le cas d'un take, on supprime le tuple et on indique qu'il a été pris pour les prochains observers
 					if (mode == eventMode.TAKE) {
-						((CentralizedLinda) o).setDernierElement(false);
+						((CentralizedLinda) o).setTakeEffectue(true);
 						((CentralizedLinda) o).getTuples().remove(tuple);
 					}
 				}

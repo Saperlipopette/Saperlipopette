@@ -11,13 +11,15 @@ public class BasicTestOlivierTake2 {
                 
         for (int i = 1; i <= 3; i++) {
             final int j = i;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             new Thread() {  
+            	
                 public void run() {
-                    try {
-                        Thread.sleep(2);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                	 
                     Tuple motif = new Tuple(Integer.class, String.class);
                     Tuple res = linda.take(motif);
                     System.out.println("("+j+") Resultat:" + res);
@@ -46,7 +48,7 @@ public class BasicTestOlivierTake2 {
         new Thread() {
             public void run() {
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
