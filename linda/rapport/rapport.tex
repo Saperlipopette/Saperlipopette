@@ -1,0 +1,117 @@
+\documentclass{report}
+
+\usepackage[ansinew]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[francais]{babel}
+\usepackage{graphicx} % pour les images
+\usepackage{amsmath} % les trois packages suivants sont pr les maths
+\usepackage{amssymb}
+\usepackage{mathrsfs}
+\usepackage{listings} % pour l'affichage du code
+\usepackage{color}
+
+\lstset{ %
+	language=Java,        % choix du langage
+	basicstyle=\footnotesize,       % taille de la police du code
+	numbers=left,                   % placer le numéro de chaque ligne à gauche (left) 
+	numberstyle=\normalsize,        % taille de la police des numéros
+	numbersep=7pt,            % distance entre le code et sa numérotation
+	backgroundcolor=\color{white},
+	commentstyle=\color{blue}
+}
+\makeatletter
+\def\clap#1{\hbox to 0pt{\hss #1\hss}}%
+\def\ligne#1{%
+\hbox to \hsize{%
+\vbox{\centering #1}}}%
+\def\haut#1#2#3{%
+\hbox to \hsize{%
+\rlap{\vtop{\raggedright #1}}%
+\hss
+\clap{\vtop{\centering #2}}%
+\hss
+\llap{\vtop{\raggedleft #3}}}}%
+\def\bas#1#2#3{%
+\hbox to \hsize{%
+\rlap{\vbox{\raggedright #1}}%
+\hss
+\clap{\vbox{\centering #2}}%
+\hss
+\llap{\vbox{\raggedleft #3}}}}%
+\def\maketitle{%
+\thispagestyle{empty}\vbox to \vsize{%
+\haut{}{\@blurb}{}
+\vfill
+\vspace{1cm}
+\begin{flushleft}
+\usefont{OT1}{ptm}{m}{n}
+\huge \@title
+\end{flushleft}
+\par
+\hrule height 4pt
+\par
+\begin{flushright}
+\usefont{OT1}{phv}{m}{n}
+\Large \@author
+\par
+\end{flushright}
+\vspace{1cm}
+\vfill
+\vfill
+\bas{}{\@location, le \@date}{}
+}%
+\cleardoublepage
+}
+\def\date#1{\def\@date{#1}}
+\def\author#1{\def\@author{#1}}
+\def\title#1{\def\@title{#1}}
+\def\location#1{\def\@location{#1}}
+\def\blurb#1{\def\@blurb{#1}}
+\date{\today}
+\author{}
+\title{}
+\location{Toulouse}\blurb{}
+\makeatother
+\title{Rapport du projet de systèmes concurrents / intergiciels }
+\author{Olivier Lienhard \\ Tom Lucas \\ Thibault Hilaire}
+\location{Toulouse}
+\blurb{%\blurb
+École nationale supérieure d'électrotechnique, d'électronique, d'informatique, d'hydraulique et des télécommunications\\
+\textbf{Filière Informatique et Mathématiques appliquées}\\[1em]
+}% 
+
+
+
+\begin{document}
+
+\maketitle
+
+\renewcommand{\contentsname}{Sommaire}
+\renewcommand{\chaptername}{Partie}
+\tableofcontents % pour que latex génére le sommaire
+
+\chapter{Choix de la spécification libérale}
+
+Explications des différents choix de la spécification libérale :
+\begin{itemize}
+ \item quand plusieurs tuples correspondent, take retourne le premier à avoir été écrit dans la mémoire (FIFO)
+ \item quand plusieurs take sont en attente et qu'un dépôt peut en débloquer plusieurs, on débloque le premier take à avoir demandé (FIFO)
+ \item quand des read et un take sont en attente, et qu'un dépôt peut les débloquer, on les débloque dans l'ordre de demande (FIFO)
+ \item quand il y a un take et un callback enregistré pour le même motif, le take est prioritaire
+\end{itemize}
+
+
+\chapter{Version en mémoire partagée}
+
+\section{Choix d'implémentation}
+
+\chapter{Version client / mono-serveur}
+
+\section{Choix d'implémentation}
+
+\chapter{Version multi-serveurs}
+
+\section{Choix d'implémentation}
+
+\end{document}

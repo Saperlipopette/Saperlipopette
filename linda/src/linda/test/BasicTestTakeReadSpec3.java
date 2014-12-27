@@ -2,7 +2,7 @@ package linda.test;
 
 import linda.*;
 
-//Test vérifiant le troisieme tiret de la spécification libérale : quand des read et un take sont en attente, et qu'un dépôt peut les débloquer, le choix de déblocage est de type FIFO
+//Test vérifiant le troisieme tiret de la spécification libérale : quand des read et un take sont en attente, et qu'un dépôt peut les débloquer, on les débloque dans l'ordre de demande (FIFO)
 public class BasicTestTakeReadSpec3 {
 
 	public static void main(String[] a) {

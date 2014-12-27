@@ -3,7 +3,7 @@ package linda.test;
 import linda.*;
 
 //Test vérifiant le second tiret de la spécification libérale : quand plusieurs take sont en attente et qu'un dépôt peut en débloquer plusieurs,
-//le choix est de type FIFO
+//on débloque le premier take à avoir demandé FIFO
 public class BasicTestTakeSpec2 {
 
     public static void main(String[] a) {
