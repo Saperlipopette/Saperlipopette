@@ -5,7 +5,7 @@ import linda.*;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 
-public class BasicTestOlivierAsyncCallbackTakeImmediate {
+public class BasicTestAsyncCallbackReadImmediate {
 
     private static class MyCallback implements Callback {
         public void call(Tuple t) {
@@ -41,17 +41,21 @@ public class BasicTestOlivierAsyncCallbackTakeImmediate {
         Tuple motif2 = new Tuple(Integer.class, Integer.class);
         
        
-        // On vérifie que le eventRegister en mode Take en timing Immediate fonctionne correctement
-        linda.eventRegister(eventMode.TAKE, eventTiming.IMMEDIATE, motif, new AsynchronousCallback(new MyCallback()));
-        linda.eventRegister(eventMode.TAKE, eventTiming.IMMEDIATE, motif2,new AsynchronousCallback(new MyCallback()));
-        linda.eventRegister(eventMode.TAKE, eventTiming.IMMEDIATE, motif, new AsynchronousCallback(new MyCallback()));
+        // On vérifie que le eventRegister en mode read en timing Immediate fonctionne correctement
+        linda.eventRegister(eventMode.READ, eventTiming.IMMEDIATE, motif, new AsynchronousCallback(new MyCallback()));
+        linda.eventRegister(eventMode.READ, eventTiming.IMMEDIATE, motif2, new AsynchronousCallback(new MyCallback()));
+        linda.eventRegister(eventMode.READ, eventTiming.IMMEDIATE, motif, new AsynchronousCallback(new MyCallback()));
 
         Tuple t4 = new Tuple(5, "foo");
         System.out.println("(2) write: " + t4);
         linda.write(t4);
         
+        linda.eventRegister(eventMode.READ, eventTiming.IMMEDIATE, motif, new AsynchronousCallback(new MyCallback()));
+        
+        
         linda.debug("(2)");
 
     }
+
 
 }

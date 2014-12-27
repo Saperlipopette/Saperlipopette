@@ -2,7 +2,9 @@ package linda.test;
 
 import linda.*;
 
-public class BasicTestOlivierTake2 {
+//Test vérifiant le second tiret de la spécification libérale : quand plusieurs take sont en attente et qu'un dépôt peut en débloquer plusieurs,
+//le choix est de type FIFO
+public class BasicTestTakeSpec2 {
 
     public static void main(String[] a) {
                 
@@ -79,6 +81,7 @@ public class BasicTestOlivierTake2 {
                 
                 Tuple t5 = new Tuple(5, "foo");
                 System.out.println("(7) write: " + t5);
+                linda.write(t5);
                 linda.write(t5);
                                 
                 linda.debug("(2)");

@@ -5,7 +5,7 @@ import linda.*;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 
-public class BasicTestOlivierCallbackTakeFuture {
+public class BasicTestAsyncCallbackTakeFuture {
 
     private static class MyCallback implements Callback {
         public void call(Tuple t) {
@@ -42,10 +42,10 @@ public class BasicTestOlivierCallbackTakeFuture {
         
        
         // On vérifie que le eventRegister en mode Take en timing Immediate fonctionne correctement
-        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif, new MyCallback());
-        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif2, new MyCallback());
-        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif, new MyCallback());
-        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif, new MyCallback());
+        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif, new AsynchronousCallback(new MyCallback()));
+        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif2, new AsynchronousCallback(new MyCallback()));
+        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif, new AsynchronousCallback(new MyCallback()));
+        linda.eventRegister(eventMode.TAKE, eventTiming.FUTURE, motif,new AsynchronousCallback(new MyCallback()));
 
         
         Tuple t4= new Tuple(44, 55);

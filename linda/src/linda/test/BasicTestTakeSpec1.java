@@ -2,7 +2,8 @@ package linda.test;
 
 import linda.*;
 
-public class BasicTestOlivierRead {
+//Test vérifiant le premier tiret de la spécification libérale : quand plusieurs tuples correspondent, take renvoie le premier à avoir été écrit (write) dans la mémoire
+public class BasicTestTakeSpec1 {
 
     public static void main(String[] a) {
                 
@@ -21,13 +22,12 @@ public class BasicTestOlivierRead {
                 
                 
 
-                //On vérifie qu'on a bien read en FIFO sur deux différents motifs
-                Tuple resIntStr = linda.read(motif);
-                Tuple resIntStr2 = linda.read(motif);
+                 Tuple resIntStr = linda.take(motif);
+                Tuple resIntStr2 = linda.take(motif);
                 
-                Tuple resIntInt = linda.read(motif2);
-                Tuple resIntInt2 = linda.read(motif2);
-                Tuple resIntInt3 = linda.read(motif2);
+                Tuple resIntInt = linda.take(motif2);
+                Tuple resIntInt2 = linda.take(motif2);
+                Tuple resIntInt3 = linda.take(motif2);
 
                 System.out.println("(1) Resultat:" + resIntStr);
                 System.out.println("(2) Resultat:" + resIntStr2);
