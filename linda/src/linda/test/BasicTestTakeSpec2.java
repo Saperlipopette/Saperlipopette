@@ -29,24 +29,7 @@ public class BasicTestTakeSpec2 {
                 }
             }.start();
         }
-//        
-//        for (int i = 1; i <= 3; i++) {
-//            final int j = i;
-//            new Thread() {  
-//                public void run() {
-//                    try {
-//                        Thread.sleep(2);
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                    Tuple motif2 = new Tuple(Integer.class, Integer.class);
-//                    Tuple res = linda.take(motif2);
-//                    System.out.println("("+j+") Resultat:" + res);
-//                    linda.debug("("+j+")");
-//                }
-//            }.start();
-//        }
-                
+        
         new Thread() {
             public void run() {
                 try {

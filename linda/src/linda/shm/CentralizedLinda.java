@@ -21,12 +21,12 @@ import linda.Tuple;
 /** Shared memory implementation of Linda. */
 public class CentralizedLinda extends Observable implements Linda {
 
-	Collection<Tuple> tuples;
-	Map<Tuple, LinkedList<Integer>> MatchEnAttente;
-	Lock moniteur;
-	Condition[] classe;
-	Condition writeCondition;
-	int id;
+	private Collection<Tuple> tuples;
+	private Map<Tuple, LinkedList<Integer>> MatchEnAttente;
+	private Lock moniteur;
+	private Condition[] classe;
+	private Condition writeCondition;
+	private int id;
 	private Boolean takeEffectue; // utilisé pour le réveil en chaîne des match
 									// en attente dans la méthode write et pour la méthode "update" de nos
 	// observers
@@ -116,9 +116,6 @@ public class CentralizedLinda extends Observable implements Linda {
 			this.setChanged();
 			this.notifyObservers(t);
 		}
-		
-		//on réinitialise la variable "takeEffectue"
-		this.setTakeEffectue(false);
 		moniteur.unlock();
 	}
 
@@ -231,8 +228,10 @@ public class CentralizedLinda extends Observable implements Linda {
 		for (Tuple t : tuples) {
 			if (t.matches(template)) {
 				ts.add(t);
-				tuples.remove(t);
 			}
+		}
+		for (Tuple t : ts) {
+			this.tuples.remove(t);
 		}
 		return ts;
 	}
@@ -353,6 +352,7 @@ public class CentralizedLinda extends Observable implements Linda {
 				Tuple tuple = (Tuple) arg;
 				// si le nouveau tuple correspond au template
 				if (tuple.matches(template)) {
+					((CentralizedLinda) o).getMoniteur().lock();
 					// System.out.println("tuple matches");
 					// on regarde si le tuple correspondant existe toujours dans la
 					// liste (car d'autres observateurs en mode take ou des
@@ -370,6 +370,8 @@ public class CentralizedLinda extends Observable implements Linda {
 							((CentralizedLinda) o).getTuples().remove(tuple);
 						}
 					}
+
+					((CentralizedLinda) o).getMoniteur().unlock();
 				}
 			}
 		}
