@@ -67,7 +67,7 @@
 \def\title#1{\def\@title{#1}}
 \def\location#1{\def\@location{#1}}
 \def\blurb#1{\def\@blurb{#1}}
-\date{13 Janvier 2015}
+\date{\today}
 \author{}
 \title{}
 \location{Toulouse}\blurb{}
@@ -107,7 +107,7 @@ Explications des différents choix de la spécification libérale :
 Voici les différentes structures choisies pour respecter nos choix de spécification:
 \begin{itemize}
  \item Collection<Tuple> tuples : pour sauvegarder nos tuples qui ont été écrits dans la mémoire, et les enlever lors d'un take
- \item	Map<Tuple, LinkedList<Integer>> MatchEnAttente : cette map va permettre de stocker tous les take/read bloquants 
+ \item	Map<Tuple, LinkedList<Integer> > MatchEnAttente : cette map va permettre de stocker tous les take/read bloquants 
  \item int id : un entier qui nous permettra de simuler notre FIFO, de savoir dans quels ordres les take/read ont été écrits dans notre map
  \item Condition[] classe : un ensemble de conditions liées à un Lock, dont on associera chaque condition à un take/read bloquants
  \item Condition writeCondition : une condition qui va nous permettre de faire une priorité au signalé lors du réveil d'un take/read
@@ -147,8 +147,7 @@ Puis, pour vérifier que la spécification est bien respectée, nous avons effec
 \item BasicTestTakeCallbackSpec4.java
 \end{itemize}
 
-Ces tests-là pour les principaux, ajoutés à d'autres tests, donnant tous des résultats cohérents, nous permettent de valider notre implémentation. Il est à noter que certains tests finissent
-sur des commandes bloquantes et il faut donc arrêter l'éxécution manuellement, cela est bien sûr fait exprès de manière à montrer dans certains cas le bon fonctionnement de nos fonctions.
+Ces tests-là pour les principaux, ajoutés à d'autres tests, donnant tous des résultats cohérents, nous permettent de valider notre implémentation.
 
 \chapter{Version client / mono-serveur}
 

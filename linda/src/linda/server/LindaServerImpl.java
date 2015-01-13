@@ -82,7 +82,7 @@ public class LindaServerImpl extends UnicastRemoteObject implements LindaServer 
 
 	@Override
 	public void eventRegister(eventMode mode, eventTiming timing,
-		Tuple template, RemoteCallback callback) throws RemoteException {
+		Tuple template, final RemoteCallback callback) throws RemoteException {
 	
 		final class newCallback implements Callback {
 	        public void call(Tuple t) {
