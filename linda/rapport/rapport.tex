@@ -109,7 +109,7 @@ Voici les différentes structures choisies pour respecter nos choix de spécific
  \item Collection<Tuple> tuples : pour sauvegarder nos tuples qui ont été écrits dans la mémoire, et les enlever lors d'un take
  \item	Map<Tuple, LinkedList<Integer>> MatchEnAttente : cette map va permettre de stocker tous les take/read bloquants 
  \item int id : un entier qui nous permettra de simuler notre FIFO, de savoir dans quels ordres les take/read ont été écrits dans notre map
- \item Condition[] classe : un ensemble de conditions liées à un Lock, dont on associera chaque condition à un take/read bloquants
+ \item ArrayList<Condition> classe : un ensemble de conditions liées à un Lock, dont on associera chaque condition à un take/read bloquants
  \item Condition writeCondition : une condition qui va nous permettre de faire une priorité au signalé lors du réveil d'un take/read
  \item Boolean takeEffectue : un booléen permettant de vérifier, lors d'un write, si un take a été effectué
 \end{itemize}
@@ -138,6 +138,8 @@ Pour les tests, outre les tests donnés, des tests unitaires sont effectués pou
 \item BasicTestCallbackTakeImmediate.java
 \item BasicTestRead.java
 \end{itemize}
+D'autres tests unitaires pour les fonctions tryRead, tryTake, TakeAll, ReadAll sont aussi définis. Un test vérifiant qu'un callback peut se réengistrer est aussi donné. Enfin, l'application whiteboard fonctionne
+exactement comme elle nous a été présentée lors de l'introduction au projet.
 
 Puis, pour vérifier que la spécification est bien respectée, nous avons effectué des tests pour vérifier chacun des quatre points, nommés respectivement dans l'ordre :
 \begin{itemize}
