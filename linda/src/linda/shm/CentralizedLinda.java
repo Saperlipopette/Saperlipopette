@@ -13,14 +13,12 @@ import java.util.TreeSet;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import linda.Callback;
 import linda.Linda;
 import linda.Tuple;
 
 /** Shared memory implementation of Linda. */
 public class CentralizedLinda extends Observable implements Linda {
-
 	private Collection<Tuple> tuples;
 	private Map<Tuple, LinkedList<Integer>> MatchEnAttente;
 	private Lock moniteur;
@@ -28,7 +26,7 @@ public class CentralizedLinda extends Observable implements Linda {
 	private Condition writeCondition;
 	private int id;
 	private Boolean takeEffectue; // utilisé pour le réveil en chaîne des match
-									// en attente dans la méthode write et pour la méthode "update" de nos
+	// en attente dans la méthode write et pour la méthode "update" de nos
 	// observers
 
 	public CentralizedLinda() {
@@ -42,7 +40,6 @@ public class CentralizedLinda extends Observable implements Linda {
 	}
 
 	// DEBUT GETTERS & SETTERS
-
 	public Boolean getTakeEffectue() {
 		return takeEffectue;
 	}
@@ -87,31 +84,36 @@ public class CentralizedLinda extends Observable implements Linda {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(int id) {	
 		this.id = id;
 	}
 
 	// FIN GETTERS & SETTERS
-
 	public void write(Tuple t) {
 		Collection<Tuple> templatesCorrespondants;
 		// TODO Auto-generated method stub
 		moniteur.lock();
-		this.setTakeEffectue(false); //tant que la variable est "false", cela indique qu'on n'a pas réveillé un Take
+		this.setTakeEffectue(false); // tant que la variable est "false", cela
+										// indique qu'on n'a pas réveillé un
+										// Take
 		tuples.add(t);
-		templatesCorrespondants=recupererTemplate(t); // Pour savoir s'il y a qqn à reveiller il ne se passe rien
-		while(!templatesCorrespondants.isEmpty() && !takeEffectue) {
+		templatesCorrespondants = recupererTemplate(t); // Pour savoir s'il y a
+														// qqn à reveiller il ne
+														// se passe rien
+		while (!templatesCorrespondants.isEmpty() && !takeEffectue) {
 			this.reveil(templatesCorrespondants);
-			//on attend que le réveil ait été effectué jusqu'à un take ou jusqu'à la fin des read
+			// on attend que le réveil ait été effectué jusqu'à un take ou
+			// jusqu'à la fin des read
 			try {
 				this.writeCondition.await();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
-			templatesCorrespondants=recupererTemplate(t);
+			}
+			templatesCorrespondants = recupererTemplate(t);
 		}
-		//si on n'a pas effectué déjà un take de ce tuple, on regarde s'il y a des callback enregistrés sur ce tuple
+		// si on n'a pas effectué déjà un take de ce tuple, on regarde s'il y a
+		// des callback enregistrés sur ce tuple
 		if (!takeEffectue) {
 			this.setChanged();
 			this.notifyObservers(t);
@@ -142,7 +144,6 @@ public class CentralizedLinda extends Observable implements Linda {
 				e.printStackTrace();
 			}
 			// System.out.println("Take N�"+nb+" reveill�");
-	
 			// on indique pour les eventRegister que le template a été pris
 			// (take)
 			t = this.tryTake(template);
@@ -150,8 +151,10 @@ public class CentralizedLinda extends Observable implements Linda {
 			if (MatchEnAttente.get(template).size() == 0) {
 				MatchEnAttente.remove(template);
 			}
-			// on indique au write qu'il peut continuer son exécution en indiquant qu'un take a été effectué
-			this.setTakeEffectue(true);;
+			// on indique au write qu'il peut continuer son exécution en
+			// indiquant qu'un take a été effectué
+			this.setTakeEffectue(true);
+			;
 			this.writeCondition.signal();
 		}
 		moniteur.unlock();
@@ -196,6 +199,7 @@ public class CentralizedLinda extends Observable implements Linda {
 	}
 
 	public Tuple tryTake(Tuple template) {
+		moniteur.lock();
 		// TODO Auto-generated method stub
 		Tuple resultat = null;
 		Iterator<Tuple> it = tuples.iterator();
@@ -206,10 +210,12 @@ public class CentralizedLinda extends Observable implements Linda {
 				tuples.remove(t);
 			}
 		}
+		moniteur.unlock();
 		return resultat;
 	}
 
 	public Tuple tryRead(Tuple template) {
+		moniteur.lock();
 		// TODO Auto-generated method stub
 		Tuple resultat = null;
 		Iterator<Tuple> it = tuples.iterator();
@@ -219,6 +225,7 @@ public class CentralizedLinda extends Observable implements Linda {
 				resultat = t;
 			}
 		}
+		moniteur.unlock();
 		return resultat;
 	}
 
@@ -233,25 +240,30 @@ public class CentralizedLinda extends Observable implements Linda {
 		for (Tuple t : ts) {
 			this.tuples.remove(t);
 		}
+		moniteur.unlock();
 		return ts;
 	}
 
 	public Collection<Tuple> readAll(Tuple template) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub		
+		moniteur.lock();
 		Collection<Tuple> ts = new ArrayList<Tuple>();
+		
 		for (Tuple t : tuples) {
 			if (t.matches(template)) {
 				ts.add(t);
 			}
 		}
+		moniteur.unlock();
 		return ts;
 	}
 
-	public void eventRegister(eventMode mode, eventTiming timing, Tuple template, Callback callback) {
+	public void eventRegister(eventMode mode, eventTiming timing,
+			Tuple template, Callback callback) {
+
 		// TODO Auto-generated method stub
 		Tuple tuple = null;
 		Observer obs;
-
 		// dans le cas o� l'action � effectuer est IMMEDIATE
 		if (timing == eventTiming.IMMEDIATE) {
 			if (mode == eventMode.READ) {
@@ -274,14 +286,14 @@ public class CentralizedLinda extends Observable implements Linda {
 			obs = new MyObserver(mode, template, callback);
 			this.addObserver(obs);
 		}
+
 	}
 
 	public void debug(String prefix) {
 		// TODO Auto-generated method stub
-
 	}
 
-	private Collection<Tuple> recupererTemplate(Tuple t) {
+	private Collection<Tuple> recupererTemplate(Tuple t) {		
 		Collection<Tuple> templates = new HashSet<Tuple>();
 		if (t == null) {
 			System.out.println("probleme recupererTemplate");
@@ -298,7 +310,7 @@ public class CentralizedLinda extends Observable implements Linda {
 		return templates;
 	}
 
-	private void reveil(Collection<Tuple> templates) {
+	private void reveil(Collection<Tuple> templates) {		
 		TreeSet<Integer> ensemble = new TreeSet<Integer>();
 		for (Tuple t : templates) {
 			ensemble.addAll(MatchEnAttente.get(t));
@@ -310,16 +322,16 @@ public class CentralizedLinda extends Observable implements Linda {
 			// System.out.println("Reveil de : "+ensemble.first());
 			classe[ensemble.first()].signal();
 		}
+
 	}
 
-//	public void afficherTuples() {
-//		moniteur.lock();
-//		for (Tuple t : tuples) {
-//			System.out.println(t.toString());
-//		}
-//		moniteur.unlock();
-//	}
-
+	// public void afficherTuples() {
+	// moniteur.lock();
+	// for (Tuple t : tuples) {
+	// System.out.println(t.toString());
+	// }
+	// moniteur.unlock();
+	// }
 	/*
 	 * private Collection<Tuple> trouve(Tuple t) { Collection<Tuple> templates =
 	 * MatchEnAttente.keySet(); for (Tuple template : templates) { if
@@ -329,10 +341,8 @@ public class CentralizedLinda extends Observable implements Linda {
 	 * private void reveil(Tuple t) { int nb = MatchEnAttente.get(t).getFirst();
 	 * classe[nb].signal(); }
 	 */
-
-	//Notre classe observateur, utile pour les eventRegister
+	// Notre classe observateur, utile pour les eventRegister
 	private class MyObserver implements Observer {
-
 		private Tuple template;
 		private Callback callback;
 		private eventMode mode;
@@ -354,28 +364,26 @@ public class CentralizedLinda extends Observable implements Linda {
 				if (tuple.matches(template)) {
 					((CentralizedLinda) o).getMoniteur().lock();
 					// System.out.println("tuple matches");
-					// on regarde si le tuple correspondant existe toujours dans la
+					// on regarde si le tuple correspondant existe toujours dans
+					// la
 					// liste (car d'autres observateurs en mode take ou des
 					// takeMatchEnAttente pourront
 					// avoir été prioritaires et l'avoir enlevé de la liste)
-
 					// si le tuple est dans la liste
 					if (!((CentralizedLinda) o).getTakeEffectue()) {
 						// on effectue l'action puis on supprime l'observer
 						callback.call(tuple);
 						o.deleteObserver(this);
-						//dans le cas d'un take, on supprime le tuple et on indique qu'il a été pris pour les prochains observers
+						// dans le cas d'un take, on supprime le tuple et on
+						// indique qu'il a été pris pour les prochains observers
 						if (mode == eventMode.TAKE) {
 							((CentralizedLinda) o).setTakeEffectue(true);
 							((CentralizedLinda) o).getTuples().remove(tuple);
 						}
 					}
-
 					((CentralizedLinda) o).getMoniteur().unlock();
 				}
 			}
 		}
 	}
-
-	
 }

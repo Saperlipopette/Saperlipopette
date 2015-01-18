@@ -1,16 +1,15 @@
-package linda.testMonoServ;
+package linda.test;
 
 import linda.*;
 
 //Test vérifiant le premier tiret de la spécification libérale : quand plusieurs tuples correspondent, take renvoie le premier à avoir été écrit (write) dans la mémoire
-public class BasicTestTakeSpec1 {
+public class TestTakeSpec1 {
 
     public static void main(String[] a) {
                 
-
-        //final Linda linda = new linda.shm.CentralizedLinda();
-        final Linda linda = new linda.server.LindaClient("//localhost:4000/LindaServer");
-        
+        final Linda linda = new linda.shm.CentralizedLinda();
+        // final Linda linda = new linda.server.LindaClient("//localhost:4000/aaa");
+                
         new Thread() {
             public void run() {
                 try {

@@ -1,4 +1,4 @@
-package linda.test;
+package linda.testMonoServ;
 
 import linda.Callback;
 import linda.Linda;
@@ -6,7 +6,7 @@ import linda.Tuple;
 import linda.Linda.eventMode;
 import linda.Linda.eventTiming;
 //Test vérifiant le quatrième tiret de la spécification libérale : quand il y a un take et un callback enregistré pour le même motif, le take est prioritaire.
-public class BasicTestTakeCallbackSpec4 {
+public class TestTakeCallbackSpec4 {
 
 
     private static class MyCallback implements Callback {
@@ -21,9 +21,9 @@ public class BasicTestTakeCallbackSpec4 {
 	
 	public static void main(String[] a) {
 
-		final Linda linda = new linda.shm.CentralizedLinda();
-		// final Linda linda = new
-		// linda.server.LindaClient("//localhost:4000/aaa");
+
+        //final Linda linda = new linda.shm.CentralizedLinda();
+        final Linda linda = new linda.mono.server.LindaClient("//localhost:4000/LindaServer");
 
 		new Thread() {
 			public void run() {

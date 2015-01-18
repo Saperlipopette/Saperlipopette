@@ -1,15 +1,15 @@
-package linda.test;
+package linda.testMonoServ;
 
 import linda.*;
 
 //Test vérifiant le troisieme tiret de la spécification libérale : quand des read et un take sont en attente, et qu'un dépôt peut les débloquer, on les débloque dans l'ordre de demande (FIFO)
-public class BasicTestTakeReadSpec3 {
+public class TestTakeReadSpec3 {
 
 	public static void main(String[] a) {
-		final Linda linda = new linda.shm.CentralizedLinda();
-		// final Linda linda = new
-		// linda.server.LindaClient("//localhost:4000/MonServeur");
 
+        //final Linda linda = new linda.shm.CentralizedLinda();
+        final Linda linda = new linda.mono.server.LindaClient("//localhost:4000/LindaServer");
+        
 		for (int i = 1; i <= 4; i++) {
 			final int j = i;
 
