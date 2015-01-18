@@ -22,10 +22,11 @@ public class LindaClient implements Linda {
     public LindaClient(String serverURI) {
     	URI = serverURI;
     	try{
+    		System.out.println("Recherche du serveur à l'adresse " + URI);
 			serveur = (LindaServer) Naming.lookup(URI);
 		}
 		catch(Exception e){
-			System.out.println("Erreur lors de la crï¿½ation du client");
+			System.out.println("Erreur lors de la création du client");
 			e.printStackTrace();
 		}
     }
