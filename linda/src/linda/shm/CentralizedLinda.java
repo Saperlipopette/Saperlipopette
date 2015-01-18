@@ -22,7 +22,7 @@ public class CentralizedLinda extends Observable implements Linda {
 	private Collection<Tuple> tuples;
 	private Map<Tuple, LinkedList<Integer>> MatchEnAttente;
 	private Lock moniteur;
-	private Condition[] classe;
+	private ArrayList<Condition> classe;
 	private Condition writeCondition;
 	private int id;
 	private Boolean takeEffectue; // utilisé pour le réveil en chaîne des match
@@ -34,7 +34,7 @@ public class CentralizedLinda extends Observable implements Linda {
 		tuples = new LinkedList<Tuple>();
 		MatchEnAttente = new HashMap<Tuple, LinkedList<Integer>>();
 		moniteur = new ReentrantLock();
-		classe = new Condition[200];
+		classe = new ArrayList<Condition>();
 		writeCondition = moniteur.newCondition();
 		id = 0;
 	}
@@ -72,11 +72,11 @@ public class CentralizedLinda extends Observable implements Linda {
 		this.moniteur = moniteur;
 	}
 
-	public Condition[] getClasse() {
+	public ArrayList<Condition> getClasse() {
 		return classe;
 	}
 
-	public void setClasse(Condition[] classe) {
+	public void setClasse(ArrayList<Condition> classe) {
 		this.classe = classe;
 	}
 
@@ -136,9 +136,9 @@ public class CentralizedLinda extends Observable implements Linda {
 				listes.add(nb);
 				MatchEnAttente.put(template, listes);
 			}
-			classe[nb] = moniteur.newCondition();
+			classe.add(nb, moniteur.newCondition());
 			try {
-				classe[nb].await();
+				classe.get(nb).await();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -176,9 +176,9 @@ public class CentralizedLinda extends Observable implements Linda {
 				listes.add(nb);
 				MatchEnAttente.put(template, listes);
 			}
-			classe[nb] = moniteur.newCondition();
+			classe.add(nb, moniteur.newCondition());
 			try {
-				classe[nb].await();
+				classe.get(nb).await();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -230,7 +230,8 @@ public class CentralizedLinda extends Observable implements Linda {
 	}
 
 	public Collection<Tuple> takeAll(Tuple template) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub	
+		moniteur.lock();
 		Collection<Tuple> ts = new ArrayList<Tuple>();
 		for (Tuple t : tuples) {
 			if (t.matches(template)) {
@@ -320,7 +321,7 @@ public class CentralizedLinda extends Observable implements Linda {
 			this.writeCondition.signal();
 		} else {
 			// System.out.println("Reveil de : "+ensemble.first());
-			classe[ensemble.first()].signal();
+			classe.get(ensemble.first()).signal();
 		}
 
 	}
