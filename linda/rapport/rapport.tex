@@ -96,6 +96,17 @@
 \renewcommand{\chaptername}{Partie}
 \tableofcontents % pour que latex génére le sommaire
 
+\chapter{Introduction}
+
+Ce projet s'attarde sur l'implémentation d'un modèle de coordination et communication nommé Linda.
+Il est constitué par un espace de stockage d'objets appelés Tuple. Un Tuple est un n-uplet ordonné de 
+valeurs comme ["voiture", 1]. Son template peut etre [String Integer] ou encore [Object Integer].
+Une fois un tuple écrit il peut être pris (take) ou lu (read) par des processus. Notre implémentation
+de Linda doit pouvoir gérer les demandes de plusieurs threads à la fois selon une spécification décrite
+précédemment à l'implémentation. Les take consomment les tuples de l'espace, contrairement
+aux read. L'avantage d'un tel modèle est que les différents processus n'ont pas conscience des autres,
+ils communiquent vers l'espace partagé qui s'occupe de gérer les problèmes de concurrences. 
+
 \chapter{Choix de la spécification libérale}
 
 Explications des différents choix de la spécification libérale :
@@ -107,6 +118,8 @@ Explications des différents choix de la spécification libérale :
 \end{itemize}
 
 \chapter{Version en mémoire partagée}
+
+L'implantation mémoire partagée se situe dans le package linda.shm, et les tests associés dans le package linda.test.
 
 \section{Choix d'implémentation}
 
@@ -144,8 +157,7 @@ Pour les tests, outre les tests donnés, des tests unitaires sont effectués pou
 \item BasicTestCallbackTakeImmediate.java
 \item BasicTestRead.java
 \end{itemize}
-D'autres tests unitaires pour les fonctions tryRead, tryTake, TakeAll, ReadAll sont aussi définis. Un test vérifiant qu'un callback peut se réengistrer est aussi donné. Enfin, l'application whiteboard fonctionne
-exactement comme elle nous a été présentée lors de l'introduction au projet.
+D'autres tests unitaires pour les fonctions tryRead, tryTake, TakeAll, ReadAll sont aussi définis. Des tests vérifiant quel les callback peuvent se réenregistrer sont aussi effectués.
 
 Puis, pour vérifier que la spécification est bien respectée, nous avons effectué des tests pour vérifier chacun des quatre points, nommés respectivement dans l'ordre :
 \begin{itemize}
@@ -155,12 +167,14 @@ Puis, pour vérifier que la spécification est bien respectée, nous avons effec
 \item BasicTestTakeCallbackSpec4.java
 \end{itemize}
 
-Ces tests-là pour les principaux, ajoutés à d'autres tests, donnant tous des résultats cohérents, nous permettent de valider notre implémentation. Il est à noter que certains tests finissent
-sur des commandes bloquantes et il faut donc arrêter l'éxécution manuellement, cela est bien sûr fait exprès de manière à montrer dans certains cas le bon fonctionnement de nos fonctions.
+Ces tests-là pour les principaux, ajoutés à d'autres tests, donnant tous des résultats cohérents, nous permettent de valider notre implémentation. 
 
 \chapter{Version client / mono-serveur}
 
 \section{Implémentation}
+
+L'implantation mono-serveur se situe dans le package linda.mono.server, et les tests associés dans le package linda.testMonoServ.
+
 \subsection{Serveur}
 L'interface LindaServer hérite de java.rmi.remote , elle reprend les même fonctions que LindaCentralized, seule la signature de la méthode eventRegister est différente (voir section 3.1.3).
 \paragraph{}La classe LindaServerImpl implémente cette interface et hérite de UnicastRemoteObject .Elle possède un attribut de type CentralizedLinda qui est réutilisé sans avoir été modifié.
@@ -193,14 +207,14 @@ public Tuple tryTake(Tuple template) throws RemoteException {
 \end{lstlisting}
 \subsection{Client}
 La classe LindaClient implémente l'interface Linda.
-Son constructeur prend en paramètre l'URL du serveur
+Son constructeur prend en paramètre l'URL du serveur.
 \begin{lstlisting}
  serveur = (LindaServer) Naming.lookup(URI);
 \end{lstlisting}
-Les fonctions de cette classe (à par EventRegister) consiste ainsi en l'appel des fonction correspondante du serveur.
+Les fonctions de cette classe (à part EventRegister) consiste ainsi en l'appel des fonctions correspondantes du serveur.
 \subsection{Le cas des EventRegister}
 La principale difficulté de la version mono-serveur de Linda est l'implémentation de la méthode eventRegister car les callbacks pris en paramètre par la fonction eventRegister de la classe CentralizedLinda ne fonctionnent pas "à distance".
-La solution à été de créer un callback spécial pour pouvoir faire cela, l'interface RemoteCallback hérite de java.rmi.remote et est implémentater par la classe RemoteCallbackImpl : son constructeur prend en parémètre un callback classique et sa méthode Call appèle la méthode callback de ce dernier.
+La solution à été de créer un callback spécial pour pouvoir faire cela, l'interface RemoteCallback hérite de java.rmi.remote et est implémentée par la classe RemoteCallbackImpl : son constructeur prend en paramètre un callback classique et sa méthode Call appelle la méthode callback de ce dernier.
 \paragraph{}Le méthode EventRegister du serveur prend en paramètre un remoteCallback et crée un callback classique dont la fonction Call appelle celle du remoteCalback qu'elle passe en paramètre à la méthode EventRegister de CentralizedLinda : 
 \begin{lstlisting}
 @Override
@@ -237,5 +251,30 @@ public void eventRegister(eventMode mode, eventTiming timing,
 \section{Tests}
 Tout les test effectués sur la version centralisé ont été effectués également sur la version mono-serveur, en donnant les même résultats.\newline
 De plus cette version à été testé avec des "whiteboard" et ils fonctionnent parfaitement.
+
+\chapter{Version client / multi-serveur}
+
+Cette version n'a pas pu être implantée correctement, cela est dû à quelques difficultés et un léger manque de temps de notre part. Cependant, quelques fichiers d'implantation sont présents dans le package
+linda.server, bien qu'ils n'aient pas aboutis.
+
+\chapter{Conclusion}
+
+	Ce projet a abordé des concepts relativement nouveaux. En particulier les eventRegister où il a
+fallu s'approprié les sources fournies pour implementer ce système 'd'abonnement'. Une fois
+la spécification libérale définie, l'implémentation des primitives reposait sur des connaissances
+acquises. Il a fallu néanmoins prendre en compte certaines subtilités vu en cours comme la priorité
+au signaleur/signalé. Pour la réalisation de la version en mémoire partagée ou mono-serveur , les eventRegister
+ont demandé plus de temps puisqu'il fallait les prendres en compte dans le code précédemment ecrit. De 
+plus, de nombreux tests ont du être fait pour s'assurer de leur bon fonctionnement ainsi que de la 
+cohérence sur les priorités définies.
+	Nous avons passé du temps sur la version multi-serveurs mais sans réussite. Nous étions partis sur
+un système d'eventRegister où un serveur qui reçoit une requète s'abonne sur les différents serveurs.
+La difficulté majeure de cette version est de gérer l'arrêt de ces abonnements lorsqu'un est trouvé.
+C'est sur ce point que nous avons pas trouvé de solutions.
+	Notre groupe a cependant compris la globalité du sujet. Nous avons avancé ensemble et tenté des
+améliorations ( implantation multi-activité, nous pourrons aussi en discuter lors de l'oral bien que nous en ayons enlevé toute trace dans le code final ). Nous avons le sentiment de maîtriser les parties du
+sujet traîtés et sommes d'accord sur les choix qui ont du être faits.
+
+
 
 \end{document}

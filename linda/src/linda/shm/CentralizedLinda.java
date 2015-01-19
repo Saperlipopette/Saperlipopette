@@ -84,7 +84,7 @@ public class CentralizedLinda extends Observable implements Linda {
 		return id;
 	}
 
-	public void setId(int id) {	
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -94,12 +94,12 @@ public class CentralizedLinda extends Observable implements Linda {
 		// TODO Auto-generated method stub
 		moniteur.lock();
 		this.setTakeEffectue(false); // tant que la variable est "false", cela
-										// indique qu'on n'a pas réveillé un
-										// Take
+		// indique qu'on n'a pas réveillé un
+		// Take
 		tuples.add(t);
 		templatesCorrespondants = recupererTemplate(t); // Pour savoir s'il y a
-														// qqn à reveiller il ne
-														// se passe rien
+		// qqn à reveiller il ne
+		// se passe rien
 		while (!templatesCorrespondants.isEmpty() && !takeEffectue) {
 			this.reveil(templatesCorrespondants);
 			// on attend que le réveil ait été effectué jusqu'à un take ou
@@ -230,7 +230,7 @@ public class CentralizedLinda extends Observable implements Linda {
 	}
 
 	public Collection<Tuple> takeAll(Tuple template) {
-		// TODO Auto-generated method stub	
+		// TODO Auto-generated method stub
 		moniteur.lock();
 		Collection<Tuple> ts = new ArrayList<Tuple>();
 		for (Tuple t : tuples) {
@@ -246,10 +246,9 @@ public class CentralizedLinda extends Observable implements Linda {
 	}
 
 	public Collection<Tuple> readAll(Tuple template) {
-		// TODO Auto-generated method stub		
+		// TODO Auto-generated method stub
 		moniteur.lock();
 		Collection<Tuple> ts = new ArrayList<Tuple>();
-		
 		for (Tuple t : tuples) {
 			if (t.matches(template)) {
 				ts.add(t);
@@ -261,7 +260,6 @@ public class CentralizedLinda extends Observable implements Linda {
 
 	public void eventRegister(eventMode mode, eventTiming timing,
 			Tuple template, Callback callback) {
-
 		// TODO Auto-generated method stub
 		Tuple tuple = null;
 		Observer obs;
@@ -287,14 +285,13 @@ public class CentralizedLinda extends Observable implements Linda {
 			obs = new MyObserver(mode, template, callback);
 			this.addObserver(obs);
 		}
-
 	}
 
 	public void debug(String prefix) {
 		// TODO Auto-generated method stub
 	}
 
-	private Collection<Tuple> recupererTemplate(Tuple t) {		
+	private Collection<Tuple> recupererTemplate(Tuple t) {
 		Collection<Tuple> templates = new HashSet<Tuple>();
 		if (t == null) {
 			System.out.println("probleme recupererTemplate");
@@ -311,7 +308,7 @@ public class CentralizedLinda extends Observable implements Linda {
 		return templates;
 	}
 
-	private void reveil(Collection<Tuple> templates) {		
+	private void reveil(Collection<Tuple> templates) {
 		TreeSet<Integer> ensemble = new TreeSet<Integer>();
 		for (Tuple t : templates) {
 			ensemble.addAll(MatchEnAttente.get(t));
@@ -323,7 +320,6 @@ public class CentralizedLinda extends Observable implements Linda {
 			// System.out.println("Reveil de : "+ensemble.first());
 			classe.get(ensemble.first()).signal();
 		}
-
 	}
 
 	// public void afficherTuples() {

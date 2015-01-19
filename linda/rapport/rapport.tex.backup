@@ -10,14 +10,20 @@
 \usepackage{listings} % pour l'affichage du code
 \usepackage{color}
 
+\usepackage{color}
+\definecolor{eclipseBlue}{RGB}{42,0.0,255}
+\definecolor{eclipseGreen}{RGB}{63,127,95}
+\definecolor{eclipsePurple}{RGB}{127,0,85}
+
 \lstset{ %
 	language=Java,        % choix du langage
 	basicstyle=\footnotesize,       % taille de la police du code
-	numbers=left,                   % placer le numéro de chaque ligne à gauche (left) 
-	numberstyle=\normalsize,        % taille de la police des numéros
 	numbersep=7pt,            % distance entre le code et sa numérotation
 	backgroundcolor=\color{white},
-	commentstyle=\color{blue}
+	commentstyle=\color{eclipseGreen},
+  	keywordstyle=\color{eclipsePurple}, 
+    stringstyle=\color{eclipseBlue},
+    ndkeywordstyle=\color{eclipseBlue}, 
 }
 \makeatletter
 \def\clap#1{\hbox to 0pt{\hss #1\hss}}%
@@ -67,7 +73,7 @@
 \def\title#1{\def\@title{#1}}
 \def\location#1{\def\@location{#1}}
 \def\blurb#1{\def\@blurb{#1}}
-\date{\today}
+\date{13 Janvier 2015}
 \author{}
 \title{}
 \location{Toulouse}\blurb{}
@@ -107,9 +113,9 @@ Explications des différents choix de la spécification libérale :
 Voici les différentes structures choisies pour respecter nos choix de spécification:
 \begin{itemize}
  \item Collection<Tuple> tuples : pour sauvegarder nos tuples qui ont été écrits dans la mémoire, et les enlever lors d'un take
- \item	Map<Tuple, LinkedList<Integer> > MatchEnAttente : cette map va permettre de stocker tous les take/read bloquants 
+ \item	Map<Tuple, LinkedList<Integer>> MatchEnAttente : cette map va permettre de stocker tous les take/read bloquants 
  \item int id : un entier qui nous permettra de simuler notre FIFO, de savoir dans quels ordres les take/read ont été écrits dans notre map
- \item Condition[] classe : un ensemble de conditions liées à un Lock, dont on associera chaque condition à un take/read bloquants
+ \item ArrayList<Condition> classe : un ensemble de conditions liées à un Lock, dont on associera chaque condition à un take/read bloquants
  \item Condition writeCondition : une condition qui va nous permettre de faire une priorité au signalé lors du réveil d'un take/read
  \item Boolean takeEffectue : un booléen permettant de vérifier, lors d'un write, si un take a été effectué
 \end{itemize}
@@ -138,6 +144,7 @@ Pour les tests, outre les tests donnés, des tests unitaires sont effectués pou
 \item BasicTestCallbackTakeImmediate.java
 \item BasicTestRead.java
 \end{itemize}
+D'autres tests unitaires pour les fonctions tryRead, tryTake, TakeAll, ReadAll sont aussi définis. Des tests vérifiant quel les callback peuvent se réenregistrer sont aussi effectués.
 
 Puis, pour vérifier que la spécification est bien respectée, nous avons effectué des tests pour vérifier chacun des quatre points, nommés respectivement dans l'ordre :
 \begin{itemize}
@@ -147,14 +154,86 @@ Puis, pour vérifier que la spécification est bien respectée, nous avons effec
 \item BasicTestTakeCallbackSpec4.java
 \end{itemize}
 
-Ces tests-là pour les principaux, ajoutés à d'autres tests, donnant tous des résultats cohérents, nous permettent de valider notre implémentation.
+Ces tests-là pour les principaux, ajoutés à d'autres tests, donnant tous des résultats cohérents, nous permettent de valider notre implémentation. 
 
 \chapter{Version client / mono-serveur}
 
-\section{Choix d'implémentation}
-
-\chapter{Version multi-serveurs}
-
-\section{Choix d'implémentation}
+\section{Implémentation}
+\subsection{Serveur}
+L'interface LindaServer hérite de java.rmi.remote , elle reprend les même fonctions que LindaCentralized, seule la signature de la méthode eventRegister est différente (voir section 3.1.3).
+\paragraph{}La classe LindaServerImpl implémente cette interface et hérite de UnicastRemoteObject .Elle possède un attribut de type CentralizedLinda qui est réutilisé sans avoir été modifié.
+Une fonction main() permet de lancer le serveur et de l'enregistrer ..... pour pouvoir être trouvé par les clients. 
+\begin{lstlisting}
+private CentralizedLinda linda;
+	
+public static void main(String[] args) {
+	System.out.println("Demarrage du serveur");	
+	String URL = "//localhost:4000/LindaServer";
+	int port = 4000;
+	try{
+		LindaServer serveur = new LindaServerImpl();
+		LocateRegistry.createRegistry(port);
+		Naming.rebind(URL,serveur);
+	}
+	catch(Exception e){
+		System.out.println("Une erreur s'est produite");
+		e.printStackTrace();
+	}	
+}
+\end{lstlisting}
+\newpage
+\paragraph{}A par pour les eventRegister (voir section 3.1.3), les autres fonctions du serveur consistent simplement en un appel aux fonctions équivalente du la version centralisé Linda du serveur:
+\begin{lstlisting}
+@Override
+public Tuple tryTake(Tuple template) throws RemoteException {
+	return linda.tryTake(template);
+}
+\end{lstlisting}
+\subsection{Client}
+La classe LindaClient implémente l'interface Linda.
+Son constructeur prend en paramètre l'URL du serveur
+\begin{lstlisting}
+ serveur = (LindaServer) Naming.lookup(URI);
+\end{lstlisting}
+Les fonctions de cette classe (à par EventRegister) consiste ainsi en l'appel des fonction correspondante du serveur.
+\subsection{Le cas des EventRegister}
+La principale difficulté de la version mono-serveur de Linda est l'implémentation de la méthode eventRegister car les callbacks pris en paramètre par la fonction eventRegister de la classe CentralizedLinda ne fonctionnent pas "à distance".
+La solution à été de créer un callback spécial pour pouvoir faire cela, l'interface RemoteCallback hérite de java.rmi.remote et est implémentater par la classe RemoteCallbackImpl : son constructeur prend en parémètre un callback classique et sa méthode Call appèle la méthode callback de ce dernier.
+\paragraph{}Le méthode EventRegister du serveur prend en paramètre un remoteCallback et crée un callback classique dont la fonction Call appelle celle du remoteCalback qu'elle passe en paramètre à la méthode EventRegister de CentralizedLinda : 
+\begin{lstlisting}
+@Override
+public void eventRegister(eventMode mode, eventTiming timing,
+	Tuple template, final RemoteCallback callback) 
+	throws RemoteException {
+	
+	final class newCallback implements Callback {
+		public void call(Tuple t) {
+			try {
+				callback.call(t);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+		}
+	}	
+	linda.eventRegister(mode, timing, template, new newCallback() );
+}
+\end{lstlisting}
+\paragraph{}La méthode EventRegister du client (qui implémente l'interface Linda) prend en paramètre un callback classique et crée un remoteCallback à partir de celui ci pour pouvoir appelé la méthode EventRegister du serveur:
+\begin{lstlisting}
+@Override
+public void eventRegister(eventMode mode, eventTiming timing, 
+					Tuple template, Callback callback) {
+	try {
+		RemoteCallback cb = new RemoteCallbackImpl(callback);
+		serveur.eventRegister(mode, timing, template, cb);
+	} catch (RemoteException e) {
+		System.out.println("Erreur lors du eventRegister");
+		e.printStackTrace();
+	}
+}
+\end{lstlisting}
+\section{Tests}
+Tout les test effectués sur la version centralisé ont été effectués également sur la version mono-serveur, en donnant les même résultats.\newline
+De plus cette version à été testé avec des "whiteboard" et ils fonctionnent parfaitement.
 
 \end{document}
